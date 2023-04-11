@@ -64,37 +64,42 @@ bool schedule(
     return scheduleHelper(avail, 0, 0, dailyNeed, maxShifts, sched, numShifts);
 }
 
+
 bool scheduleHelper(const AvailabilityMatrix& avail,
-    int row,
-    int col,
-    const size_t dailyNeed,
-    const size_t maxShifts,
-    DailySchedule& sched,
-    std::vector<size_t>& numShifts
-)
+                    int row,
+                    int col,
+                    const size_t dailyNeed,
+                    const size_t maxShifts,
+                    DailySchedule& sched,
+                    std::vector<size_t>& numShifts)
 {
-    if (col == avail[0].size()) {
+    if(col == sched[0].size()){
+        return scheduleHelper(avail,row+1,0,dailyNeed,maxShifts,sched, numShifts);
+    }
+    if (row == sched.size()) {
         return true;
     }
-        for (int i = 0; i < avail.size(); ++i) {
-            if (isValid(avail, i, col, dailyNeed, maxShifts, sched, col, numShifts, i)) {
-                sched[i][col] = avail[i][col];
-                ++numShifts[i];
+    
+
+    if (sched[row][col] == INVALID_ID) {
+        for (int i = 0; i < avail[0].size(); ++i) {
+            if (isValid(avail, row, col, dailyNeed, maxShifts, sched, i, numShifts, i)) {
+                sched[row][col] = i;
+                numShifts[i] = numShifts[i] + 1;
 
                 if (scheduleHelper(avail, row, col + 1, dailyNeed, maxShifts, sched, numShifts)) {
                     return true;
                 }
 
-                sched[i][col] = INVALID_ID;
-                --numShifts[i];
+                sched[row][col] = INVALID_ID;
+                numShifts[i] = numShifts[i]-1;
             }
         }
-    
-    //    return scheduleHelper(avail, row + 1, col, dailyNeed, maxShifts, sched, numShifts);
-    
+    }
 
     return false;
 }
+
 
 
 
@@ -110,22 +115,40 @@ bool isValid(const AvailabilityMatrix& avail,
     DailySchedule& sched,
     int numDays,
     std::vector<size_t>& numShifts,
-    int pos
+    int workerIndex
 )
 {
-    // Check if daily need has been met
-    if (col >= dailyNeed) {
-        return true;
+    int counter = 0;
+    for(int i =0; i<sched[row].size(); ++i){
+        if(sched[row][i]==workerIndex){
+            ++counter;
+        }
     }
-
-    // Check if all days have been scheduled
-    if (row >= avail.size()) {
-        return true;
+    if(counter>1){
+        return false;
     }
 
     // Check if worker has exceeded maximum shifts
-    if (numShifts[pos] >= maxShifts) {
+    if (numShifts[workerIndex] >= maxShifts) {
         return false;
     }
-    return false;
+
+    // Check if worker is available
+    if (avail[row][col] == 0) {
+        return false;
+    }
+
+    return true;
+
+
+
+    // if(avail[row][col]){
+    //     if(numShifts[workerIndex] < maxShifts){
+    //         return true;
+    //     } 
+    // }
+    // return false;
+
+    //return isValid(avail, row, col, dailyNeed, maxShifts, sched, 0, numShifts,workerIndex+1 );
+   // return true;
 }
