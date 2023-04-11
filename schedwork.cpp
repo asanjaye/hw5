@@ -57,7 +57,7 @@ bool schedule(
     sched.clear();
 
     //setting every element to invalid for initialization
-    sched = DailySchedule(avail.size(), std::vector<Worker_T>(avail[0].size(), INVALID_ID));
+    sched = DailySchedule(avail.size(), std::vector<Worker_T>(dailyNeed, INVALID_ID));
 
     std::vector<size_t> numShifts(avail[0].size(), 0);
 
@@ -84,6 +84,7 @@ bool scheduleHelper(const AvailabilityMatrix& avail,
     if (sched[row][col] == INVALID_ID) {
         for (int i = 0; i < avail[0].size(); ++i) {
             if (isValid(avail, row, col, dailyNeed, maxShifts, sched, i, numShifts, i)) {
+
                 sched[row][col] = i;
                 numShifts[i] = numShifts[i] + 1;
 
@@ -118,15 +119,7 @@ bool isValid(const AvailabilityMatrix& avail,
     int workerIndex
 )
 {
-    int counter = 0;
-    for(int i =0; i<sched[row].size(); ++i){
-        if(sched[row][i]==workerIndex){
-            ++counter;
-        }
-    }
-    if(counter>1){
-        return false;
-    }
+ 
 
     // Check if worker has exceeded maximum shifts
     if (numShifts[workerIndex] >= maxShifts) {
@@ -134,10 +127,18 @@ bool isValid(const AvailabilityMatrix& avail,
     }
 
     // Check if worker is available
-    if (avail[row][col] == 0) {
+    if (avail[row][workerIndex] == 0) {
         return false;
     }
-
+   int counter = 0;
+    for(int i =0; i<sched[row].size(); ++i){
+        if(sched[row][i]==workerIndex){
+            ++counter;
+        }
+    }
+    if(counter>0){
+        return false;
+    }
     return true;
 
 
