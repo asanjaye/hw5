@@ -41,6 +41,7 @@ std::set<std::string> wordle(
         if(in.at(i)=='-'){
             dash = true;
             posHolder.insert(i);
+			//in[i] = 'a';
 
         }
         
@@ -54,13 +55,13 @@ std::set<std::string> wordle(
     //at this point we know that there are dashes
    // bool hasChars;
     for(it = posHolder.begin(); it != posHolder.end();++it){
-        cout<<"running "<<endl;
+       // cout<<"running "<<endl;
         findAll(in, floating, words, dict, *it);
     }
     // //test
-       for(it2 = words.begin(); it2 != words.end();++it2){
-        cout<<*it2<<endl;
-       }
+    //    for(it2 = words.begin(); it2 != words.end();++it2){
+    //     cout<<*it2<<endl;
+    //    }
 
 
    return words;
@@ -76,7 +77,7 @@ void findAll(std::string in, const std::string& floating, std::set<std::string>&
     if(in.size()==0){
         return;
     }
-    if(in[pos]=='z'){
+    if(in[pos]>'z'){
         return;
     }
 
@@ -88,20 +89,23 @@ void findAll(std::string in, const std::string& floating, std::set<std::string>&
     // if(pos!=in.size()-1){
     //     findAll(in, floating, words, pos+1);
     // }
-    int counter;
+    int counter=0;
     if(dict.find(in)!=dict.end()){
+        //cout<<"test1"<<endl;
         for(int i =0; i<floating.size(); i++){
-            if(in.find(floating[i])){
+            if(!in.find(floating[i])){
                 ++counter;
-                cout<<"counter working "<<endl;
+                //cout<<"counter working "<<endl;
+                //cout<<"floating size"<<floating.size()<<endl;
             }
         }
         if(counter==floating.size()){
-            cout<<"counter: "<<counter<<endl;
+           // cout<<"counter: "<<counter<<endl;
             words.insert(in);
         }
     }
     in[pos]++;
+   // cout<<"in: "<<in<<endl;
     findAll(in, floating, words, dict, pos);
 
 
