@@ -13,7 +13,9 @@ using namespace std;
 
 
 // Add prototypes of helper functions here
-void findAll(std::string in, const std::string& floating, std::set<std::string>& words, const std::set<std::string>& dict, int pos);
+void findAll(const std::string& in, std::set<std::string>& words, const std::set<std::string>& dict, int pos, std::string& temp);
+bool isThere(char floating,std::string in,int pos );
+void permute(string& in, int start, int end, set<std::string>& combo, const std::string& floating, int idx);
 
 // Definition of primary wordle function
 std::set<std::string> wordle(
@@ -23,46 +25,45 @@ std::set<std::string> wordle(
 {
     // Add your code here
     set<std::string> words;
+    set<std::string> combo;
    // set<char> charHolder;
-   set<int> posHolder;
+  // set<int> fixed;
     int wordSize = in.size();
     set<int>::iterator it;
     set<std::string>::iterator it2;
    // int pos = -1;
 
     //checking to se if there are any dashes
+    string newIn = in;
+
     bool dash = false;
 
     if(in.empty()){
         return words;
     }
-    for(unsigned i =0; i<in.size(); ++i){
-        
-        if(in.at(i)=='-'){
-            dash = true;
-            posHolder.insert(i);
-			//in[i] = 'a';
 
-        }
-        
-    }
-    if(!dash){
-        words.insert(in);
-        return words;
+
+
+
+        //cout<<"segfault check"<<endl;
+        permute(newIn,0,newIn.size()-1, combo,floating, 0);
+       //cout<<"combo insert"<<endl;
+
+
+
+    // for(int i =0; i<floating.size(); ++i){
+    //     posHolder.erase(posHolder.find(floating[i]));
+    // }
+
+    int pos = 0;
+    for(set<std::string>::iterator it = combo.begin(); it != combo.end(); ++it){
+      //cout<<"it: "<<*it<<endl;
+       string temp = *it;
+       string temp2 = temp;
+        findAll(temp, words, dict,pos, temp2);
     }
 
    
-    //at this point we know that there are dashes
-   // bool hasChars;
-    for(it = posHolder.begin(); it != posHolder.end();++it){
-       // cout<<"running "<<endl;
-        findAll(in, floating, words, dict, *it);
-    }
-    // //test
-    //    for(it2 = words.begin(); it2 != words.end();++it2){
-    //     cout<<*it2<<endl;
-    //    }
-
 
    return words;
 
@@ -73,40 +74,133 @@ std::set<std::string> wordle(
 }
 
 // Define any helper functions here
-void findAll(std::string in, const std::string& floating, std::set<std::string>& words, const std::set<std::string>& dict, int pos){    
-    if(in.size()==0){
+void findAll(const std::string& in, std::set<std::string>& words, const std::set<std::string>& dict, int pos, std::string& temp){
+   //string temp = in;
+   //cout<<"test"<<endl; 
+       if(pos==in.size()){
         return;
     }
-    if(in[pos]>'z'){
-        return;
+
+
+   bool dash = false;
+    for(unsigned i =0; i<in.size(); i++){
+        
+        if(in.at(i)=='-'){
+            dash = true;
+        }   
+       
     }
+    if(!dash){
+        if(dict.find(in)!=dict.end())
+        words.insert(in);
+    }
+   
+
 
 
     if(in[pos]=='-'){
-        in[pos] = 'a';
-    }
+        if(temp[pos]=='-'){
+            temp[pos]='a'-1;
 
-    // if(pos!=in.size()-1){
-    //     findAll(in, floating, words, pos+1);
-    // }
-    int counter=0;
-    if(dict.find(in)!=dict.end()){
-        //cout<<"test1"<<endl;
-        for(int i =0; i<floating.size(); i++){
-            if(!in.find(floating[i])){
-                ++counter;
-                //cout<<"counter working "<<endl;
-                //cout<<"floating size"<<floating.size()<<endl;
+        }
+        while(temp[pos]<'z'){
+            temp[pos]++;
+          // cout<<temp<<endl;
+            if(dict.find(temp)!=dict.end()){
+            
+                words.insert(temp);
             }
+            findAll(in,words,dict,pos+1,temp);
         }
-        if(counter==floating.size()){
-           // cout<<"counter: "<<counter<<endl;
-            words.insert(in);
-        }
+                    temp[pos] = 'a'-1  ;
+
     }
-    in[pos]++;
-   // cout<<"in: "<<in<<endl;
-    findAll(in, floating, words, dict, pos);
+    else{
+    findAll(in,words,dict,pos+1,temp);
+
+    }
+   
+   // for(int i =0; i<in.size(); ++i){
+//             if(temp[pos]=='-'){
+//                 if(temp[pos]=='-'){
+//                     temp[pos]='a';
+//                 }
+//                 else{
+//                     temp[pos]++;
+//                 }
+          
+//         }
+        
+//             findAll(in,words,dict,pos+1,temp);
+
+//             if(in[pos]=='-'){
+
+//                 while(temp[pos]<'z'){
+//                     if(temp[pos]!='a'){
+//                     ++temp[pos];
+//                      if(dict.find(temp)!=dict.end()){
+//                        // cout<<"temp: "<<temp<<endl;
+//                         words.insert(temp);
+//                     }
+//                     }
+//                     else{
+//                      if(dict.find(temp)!=dict.end()){
+//                        // cout<<"temp: "<<temp<<endl;
+//                         words.insert(temp);
+//                     } 
+//                     ++temp[pos];
+
+//                     }
+                 
+
+//                 }
+
+//             }
 
 
+//   //  }
+ 
+
+   
 }
+
+
+void permute(string& in, int start, int end, set<std::string>&combo, const::string& floating, int idx){
+    string temp = in;
+    int counter=0;
+    if(floating.size()==0){
+        combo.insert(in);
+    }
+    if(idx >= floating.size()){
+        //cout<<"in: "<<in<<endl;
+        return;
+    }
+
+    else{
+
+        for(int i = start; i<in.size(); ++i){
+           if(temp[i]=='-'){
+           // counter++;
+            temp[i]=floating[idx];
+        
+
+                permute(temp, start,end,combo,floating,idx+1);
+                if(temp.size()==in.size() && idx==floating.size()-1){
+                //cout<<"permute: "<<temp<<endl;
+                    combo.insert(temp);
+                }
+                temp[i] = '-';
+           }
+           
+        }
+    } 
+    //cout<<"counter: "<<counter<<endl;
+    
+}
+
+
+// -i-- dn
+//-id-
+//nid-
+//-idn
+//-i-d
